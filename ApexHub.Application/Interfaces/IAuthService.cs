@@ -4,7 +4,9 @@ namespace ApexHub.Application.Interfaces;
 
 public interface IAuthService
 {
-    Task<bool> RegisterAsync(RegisterRequest request);
+    Task<RegisterResponse?> RegisterAsync(
+        RegisterRequest request);
 
-    Task<bool> LoginAsync(LoginRequest request);
+    Task<LoginResponse?> LoginAsync(
+        LoginRequest request);
 }

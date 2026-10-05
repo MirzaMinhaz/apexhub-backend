@@ -1,6 +1,8 @@
 ﻿using ApexHub.Application.DTOs;
 using ApexHub.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ApexHub.API.Controllers;
 
@@ -16,11 +18,13 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register(
+        RegisterRequest request)
     {
-        var result = await _authService.RegisterAsync(request);
+        var result =
+            await _authService.RegisterAsync(request);
 
-        if (!result)
+        if (result == null)
         {
             return BadRequest(new
             {
@@ -28,18 +32,17 @@ public class AuthController : ControllerBase
             });
         }
 
-        return Ok(new
-        {
-            message = "Registration successful."
-        });
+        return Ok(result);
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> Login(
+        LoginRequest request)
     {
-        var result = await _authService.LoginAsync(request);
+        var result =
+            await _authService.LoginAsync(request);
 
-        if (!result)
+        if (result == null)
         {
             return Unauthorized(new
             {
@@ -47,9 +50,18 @@ public class AuthController : ControllerBase
             });
         }
 
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
         return Ok(new
         {
-            message = "Login successful."
+            message = "You are authenticated.",
+            username = User.Identity?.Name,
+            role = User.FindFirst(ClaimTypes.Role)?.Value
         });
     }
 }

@@ -13,6 +13,7 @@ public class ApexHubDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserOtp> UserOtps => Set<UserOtp>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +62,37 @@ public class ApexHubDbContext : DbContext
 
             entity.HasIndex(x => x.MobileNumber)
                 .IsUnique();
+        });
+        modelBuilder.Entity<UserOtp>(entity =>
+        {
+            entity.ToTable("UserOtps");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.OtpCodeHash)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(x => x.Purpose)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(x => x.ExpiresAt)
+                .IsRequired();
+
+            entity.Property(x => x.IsUsed)
+                .IsRequired();
+
+            entity.Property(x => x.AttemptCount)
+                .IsRequired();
+
+            entity.Property(x => x.CreatedAt)
+                .IsRequired();
+
+            entity.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
